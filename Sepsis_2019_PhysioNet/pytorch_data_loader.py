@@ -200,8 +200,8 @@ print(neg/pos)
 '''
 
 
-util_optimize('/home/osvald/Projects/Diagnostics/CinC_data/tensors/',
-                '/home/osvald/Projects/Diagnostics/CinC_data/w_ol_tensors/', 40336)
+#util_optimize('/home/osvald/Projects/Diagnostics/CinC_data/tensors/',
+#                '/home/osvald/Projects/Diagnostics/CinC_data/w_ol_tensors/', 40336)
 
 #TODO: clean up and put into functions
 '''

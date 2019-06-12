@@ -39,7 +39,7 @@ else:
 #       be careful since some parameters are model specic!
 #       probably just move model to the top and specify all of its args at start
 
-epochs = 50
+epochs = 20
 batch_size = 1024
 save_rate = 10
 save = False
@@ -55,20 +55,25 @@ partition = dict([])
 partition['train'] = list(ind[:div])
 partition['validation'] = list(ind[div:n])
 
+
+'''TCN'''
 #model = TCN(40, 1, [64, 48], fcl=32, kernel_size=2, dropout=0.4).to(args.device)
 #criterion = nn.BCEWithLogitsLoss(pos_weight=torch.DoubleTensor([1.8224]).to(args.device), reduction='none')
 #optimizer = optim.Adam(model.parameters(), lr=0.0001, betas=(0.75, 0.99))
 ##optimizer = optim.SGD(model.parameters(), lr=0.0001, momentum=0.9)
 
-model = lstm(embedding=64, hidden_size=96, fcl=48, num_layers=2, 
-             batch_size=batch_size, fcl_out=True, embed=True, droprate=0.25).to(args.device)
+model = lstm(embedding=64, hidden_size=64, fcl=32, num_layers=2, 
+             batch_size=batch_size, fcl_out=False, embed=True, droprate=0.25).to(args.device)
+
 #model = LSTM_attn(embedding=32, hidden_size=64, num_layers=2, batch_size=batch_size, embed=True, droprate=0.25).to(args.device)
 criterion = nn.BCEWithLogitsLoss(pos_weight=torch.DoubleTensor([1.8224]).to(args.device), reduction='none') #1.8224
+#criterion = nn.MSELoss(reduction='none') #1.8224
+
 optimizer = optim.SGD(model.parameters(), lr=1, momentum=0.5)
 
-#lr_lambda = lambda epoch: 0.9 ** (epoch)
-#scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, factor=0.1, patience=5)
+lr_lambda = lambda epoch: 0.9 ** (epoch)
+scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
+#scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, verbose=True, factor=0.1, patience=5)
 
 if load_model:
     model.load_state_dict(torch.load(load_model))
@@ -190,8 +195,6 @@ def lstm_util_train(util_enable=True):
         max_len = labels.shape[1]
 
         optimizer.zero_grad()
-        print(batch.shape)
-        exit()
         outputs = model(batch, seq_len, max_len)
         outputs = outputs.view(-1, max_len)
 
@@ -336,8 +339,8 @@ for epoch in range(offset, offset + epochs):
     lstm_util_train()
     model.eval()
     lstm_util_test()
-    scheduler.step(train_losses[epoch]) 
-    #scheduler.step() 
+    #scheduler.step(train_losses[epoch]) 
+    scheduler.step() 
 
     show_prog(epoch, utility[epoch], p_utility[epoch], train_losses[epoch], val_losses[epoch], train_pos_acc[epoch],
               train_neg_acc[epoch], val_pos_acc[epoch], val_neg_acc[epoch], (time.time() - start))
