@@ -15,7 +15,7 @@ Check the code in these files for the input and output formats for the `load_sep
 
 ## Use
 
-You can run this prediction code by installing the NumPy package and running
+You can run this prediction code by installing packages in requirements.txt and running
 
     python driver.py input_directory output_directory
 
